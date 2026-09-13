@@ -1,0 +1,13 @@
+resources:
+  pipelines:
+    poi_pipeline:
+      name: ${bundle.target}_poi_pipeline
+
+      catalog: housing_intelligence
+      schema: raw
+
+      serverless: true
+
+      libraries:
+        - file:
+            path: ../src/pipelines/poi_data_load/pipeline.py

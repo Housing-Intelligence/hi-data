@@ -2,10 +2,10 @@ resources:
   external_locations:
     housing_raw_location:
       name: housing_raw_location
-      url: s3://housing-intelligence-data/raw_data/
+      url: s3://housing-intelligence-data/raw_data
       credential_name: housing_s3_credential
     
     housing_processed_location:
       name: housing_processed_location
-      url: s3://housing-intelligence-data/processed_data/
+      url: s3://housing-intelligence-data/processed_data
       credential_name: housing_s3_credential
