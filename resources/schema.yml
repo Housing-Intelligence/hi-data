@@ -1,0 +1,9 @@
+resources:
+  schemas:
+    housing_raw:
+      name: raw
+      catalog_name: housing_intelligence
+    
+    housing_processed:
+      name: processed
+      catalog_name: housing_intelligence

@@ -1,0 +1,5 @@
+resources:
+  catalogs:
+    housing_intelligence:
+      name: housing_intelligence
+      storage_root: s3://housing-intelligence-data/processed_data/

@@ -1,0 +1,8 @@
+resources:
+  volumes:
+    housing_raw_volume:
+      name: raw_data
+      catalog_name: housing_intelligence
+      schema_name: raw
+      volume_type: EXTERNAL
+      storage_location: s3://housing-intelligence-data/raw_data/
