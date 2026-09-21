@@ -1,0 +1,13 @@
+resources:
+  pipelines:
+    community_pipeline:
+      name: ${bundle.target}_community_pipeline
+        
+      catalog: housing_intelligence
+      schema: processed
+
+      serverless: true
+
+      libraries:
+        - file:
+            path: ../src/pipelines/community_data/pipeline.py
