@@ -6,8 +6,52 @@ from pyspark import pipelines as dp
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 
+from pyspark.sql.types import (
+    StructType,
+    StructField,
+    StringType,
+)
 
 GRID_SIZE = 0.01
+
+
+
+def prepare_poi(spark, loc: str) -> DataFrame:
+
+    POI_SCHEMA = StructType([
+        StructField("ID", StringType(), True),
+        StructField("name", StringType(), True),
+        StructField("col", StringType(), True),
+        StructField("major_category", StringType(), True),
+        StructField("middle_category", StringType(), True),
+        StructField("minor_category", StringType(), True),
+        StructField("province", StringType(), True),
+        StructField("city", StringType(), True),
+        StructField("district", StringType(), True),
+
+        # Keep coordinates as strings in raw layer.
+        StructField("_GCJ02", StringType(), True),
+        StructField("_GCJ02_1", StringType(), True),
+        StructField("_WGS84", StringType(), True),
+        StructField("_WGS84_1", StringType(), True),
+
+        StructField("phone", StringType(), True),
+        StructField("address", StringType(), True),
+    ])
+
+    return (
+        spark.readStream
+            .format("cloudFiles")
+            .option("cloudFiles.format", "csv")
+            .option("header", "true")
+            .option("quote", '"')
+            .option("escape", '"')
+            .schema(POI_SCHEMA)
+            .load(loc)
+            .withColumn("_source_file", F.col("_metadata.file_path"))
+            .withColumn("_ingest_at", F.current_timestamp())
+        )
+    
 
 
 def transform_poi(df: DataFrame) -> DataFrame:
@@ -89,15 +133,6 @@ def transform_poi(df: DataFrame) -> DataFrame:
             "address",
 
             "_source_file",
-            "_ingested_at",
+            "_ingest_at",
         )
     )
-
-@dp.table
-def dim_poi():
-
-    df = spark.readStream.table(
-        "housing_intelligence.processed.poi_raw"
-    )
-
-    return transform_poi(df)
