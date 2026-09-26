@@ -7,7 +7,16 @@ resources:
       schema: processed
 
       serverless: true
+      edition: ADVANCED
 
       libraries:
         - file:
             path: ../src/pipelines/air_data/pipeline.py
+
+      notifications:
+        - alerts:
+            - on-update-failure
+            - on-update-fatal-failure
+            - on-flow-failure
+          email_recipients:
+            - alvis.wang@gmail.com

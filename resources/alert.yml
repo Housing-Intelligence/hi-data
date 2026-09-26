@@ -1,0 +1,48 @@
+resources:
+  alerts:
+    air_quality_quarantine_rate_alert:
+      display_name: "${bundle.target} - Air Quality Data Quality Alert"
+
+      query_text: |
+        WITH failed AS (
+          SELECT COUNT(*) AS failed_count
+          FROM housing_intelligence.processed.aqicn_quarantine
+          WHERE quarantine_timestamp >=
+                CURRENT_TIMESTAMP() - INTERVAL 1 HOUR
+        ),
+
+        total AS (
+          SELECT COUNT(*) AS total_count
+          FROM housing_intelligence.processed.aqicn_bronze
+          WHERE ingestion_timestamp >=
+                CURRENT_TIMESTAMP() - INTERVAL 1 HOUR
+        )
+
+        SELECT
+          CASE
+            WHEN total_count = 0 THEN 0
+            ELSE failed_count * 100.0 / total_count
+          END AS failure_rate
+        FROM failed
+        CROSS JOIN total
+
+      warehouse_id: ${var.sql_warehouse_id}
+
+      evaluation:
+        source:
+          name: failure_rate
+          aggregation: MAX
+        comparison_operator: GREATER_THAN
+        threshold:
+          value:
+            double_value: 5
+        notification:
+          notify_on_ok: false
+          retrigger_seconds: 3600
+          subscriptions:
+              - user_email: alviswhyi@gmail.com
+
+      schedule:
+        quartz_cron_schedule: "0 10 1 * * ?"
+        timezone_id: "Asia/Shanghai"
+        pause_status: UNPAUSED

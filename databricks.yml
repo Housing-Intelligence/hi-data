@@ -13,6 +13,8 @@ variables:
     description: The catalog to use
   schema:
     description: The schema to use
+  sql_warehouse_id:
+    description: The sql warehouse id
 
 targets:
   dev:
@@ -27,6 +29,7 @@ targets:
     variables:
       catalog: workspace
       schema: ${workspace.current_user.short_name}
+      sql_warehouse_id: d7b2242c06878f1d
   prod:
     mode: production
     workspace:
