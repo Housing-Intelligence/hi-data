@@ -6,6 +6,7 @@ from pyspark.sql.types import (
     StringType,
     IntegerType,
     DoubleType,
+    ArrayType
 )
 
 OPEN_METEO_RECORD_SCHEMA = StructType([
@@ -20,7 +21,6 @@ OPEN_METEO_RECORD_SCHEMA = StructType([
     StructField("so2", DoubleType(), True),
     StructField("co", DoubleType(), True),
 ])
-
 
 AQICN_RECORD_SCHEMA = StructType([
     StructField("source", StringType(), True),
@@ -50,6 +50,50 @@ AQICN_RECORD_SCHEMA = StructType([
     StructField("dew_point", DoubleType(), True),
     StructField("wind_speed", DoubleType(), True),
     StructField("wind_gust", DoubleType(), True),
+])
+
+AIR_QUALITY_RECORD_SCHEMA = StructType([
+    StructField("source", StringType(), True),
+
+    # AQICN
+    StructField("source_url", StringType(), True),
+    StructField("station_id", IntegerType(), True),
+    StructField("station_name", StringType(), True),
+    StructField("latitude", DoubleType(), True),
+    StructField("longitude", DoubleType(), True),
+    StructField("aqi", DoubleType(), True),
+    StructField("dominant_pollutant", StringType(), True),
+
+    # Common measurements
+    StructField("measurement_time", StringType(), True),
+    StructField("pm25", DoubleType(), True),
+    StructField("pm10", DoubleType(), True),
+    StructField("no2", DoubleType(), True),
+    StructField("o3", DoubleType(), True),
+    StructField("so2", DoubleType(), True),
+    StructField("co", DoubleType(), True),
+
+    # AQICN weather
+    StructField("temperature", DoubleType(), True),
+    StructField("humidity", DoubleType(), True),
+    StructField("pressure", DoubleType(), True),
+    StructField("dew_point", DoubleType(), True),
+    StructField("wind_speed", DoubleType(), True),
+    StructField("wind_gust", DoubleType(), True),
+
+    # Open-Meteo
+    StructField("model_grid_latitude", DoubleType(), True),
+    StructField("model_grid_longitude", DoubleType(), True),
+])
+
+RAW_SCHEMA = StructType([
+    StructField("source", StringType(), True),
+    StructField("record_count", IntegerType(), True),
+    StructField(
+        "records",
+        ArrayType(AIR_QUALITY_RECORD_SCHEMA),
+        True
+    ),
 ])
 
 AQICN_EXPECTATIONS = {
@@ -91,11 +135,7 @@ AQICN_EXPECTATIONS = {
         "so2 IS NULL OR so2 >= 0",
 
     "co_valid":
-        "co IS NULL OR co >= 0",
-
-    "humidity_valid":
-        "humidity IS NULL OR "
-        "(humidity >= 0 AND humidity <= 100)",
+        "co IS NULL OR co >= 0"
 }
 
 

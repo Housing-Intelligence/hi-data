@@ -8,6 +8,7 @@ from pyspark.sql import functions as F
 from transformation import (
     AQICN_EXPECTATIONS,
     OPEN_METEO_EXPECTATIONS,
+    RAW_SCHEMA,
     build_valid_condition,
     transform_aqicn,
     transform_open_meteo,
@@ -27,8 +28,9 @@ def air_quality_raw():
         .option( "cloudFiles.format", "json")
         .option(
             "cloudFiles.schemaEvolutionMode", "rescue")
+        .schema(RAW_SCHEMA)
         .load(AIR_QUALITY_PATH)
-        .withColumn("_source_file", F.input_file_name()
+        .withColumn("_source_file", F.col("_metadata.file_path")
         )
         .withColumn("_ingest_timestamp", F.current_timestamp()
         )
