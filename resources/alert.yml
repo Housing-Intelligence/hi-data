@@ -6,7 +6,7 @@ resources:
       query_text: |
         WITH failed AS (
           SELECT COUNT(*) AS failed_count
-          FROM housing_intelligence.processed.aqicn_quarantine
+          FROM housing_intelligence.processed._aqicn_quarantine
           WHERE quarantine_timestamp >=
                 CURRENT_TIMESTAMP() - INTERVAL 1 HOUR
         ),

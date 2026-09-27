@@ -264,3 +264,147 @@ def build_valid_condition(expectations: dict):
         )
 
     return condition
+
+def transform_air_quality_fact(
+    aqicn_df: DataFrame,
+    open_meteo_df: DataFrame,
+) -> DataFrame:
+
+    aqicn = (
+        aqicn_df
+        .select(
+            # Source
+            F.lit("AQICN").alias("source"),
+            F.lit("STATION").alias("location_type"),
+
+            # Location
+            F.col("station_id")
+                .cast("string")
+                .alias("location_id"),
+
+            F.col("station_name"),
+
+            F.col("latitude")
+                .cast("double")
+                .alias("latitude"),
+
+            F.col("longitude")
+                .cast("double")
+                .alias("longitude"),
+
+            # Time
+            F.col("measurement_time")
+                .cast("timestamp")
+                .alias("measurement_time"),
+
+            # Air quality
+            F.col("aqi")
+                .cast("double")
+                .alias("aqi"),
+
+            F.col("dominant_pollutant"),
+
+            F.col("pm25")
+                .cast("double")
+                .alias("pm25"),
+
+            F.col("pm10")
+                .cast("double")
+                .alias("pm10"),
+
+            F.col("no2")
+                .cast("double")
+                .alias("no2"),
+
+            F.col("o3")
+                .cast("double")
+                .alias("o3"),
+
+            F.col("so2")
+                .cast("double")
+                .alias("so2"),
+
+            F.col("co")
+                .cast("double")
+                .alias("co"),
+
+            F.col("_source_file"),
+            F.col("_ingest_timestamp"),
+        )
+    )
+
+    open_meteo = (
+        open_meteo_df
+        .select(
+            # Source
+            F.lit("OPEN_METEO").alias("source"),
+            F.lit("MODEL_GRID").alias("location_type"),
+
+            # Stable grid point ID
+            F.concat(
+                F.lit("GRID_"),
+                F.format_string(
+                    "%.5f_%.5f",
+                    F.col("model_grid_latitude"),
+                    F.col("model_grid_longitude"),
+                ),
+            ).alias("location_id"),
+
+            # Open-Meteo has no station name
+            F.lit(None)
+                .cast("string")
+                .alias("station_name"),
+
+            # Location
+            F.col("model_grid_latitude")
+                .cast("double")
+                .alias("latitude"),
+
+            F.col("model_grid_longitude")
+                .cast("double")
+                .alias("longitude"),
+
+            # Time
+            F.col("measurement_time")
+                .cast("timestamp")
+                .alias("measurement_time"),
+
+            F.lit(None)
+                .cast("double")
+                .alias("aqi"),
+
+            F.lit(None)
+                .cast("string")
+                .alias("dominant_pollutant"),
+
+            # Air quality
+            F.col("pm25")
+                .cast("double")
+                .alias("pm25"),
+
+            F.col("pm10")
+                .cast("double")
+                .alias("pm10"),
+
+            F.col("no2")
+                .cast("double")
+                .alias("no2"),
+
+            F.col("o3")
+                .cast("double")
+                .alias("o3"),
+
+            F.col("so2")
+                .cast("double")
+                .alias("so2"),
+
+            F.col("co")
+                .cast("double")
+                .alias("co"),
+
+            F.col("_source_file"),
+            F.col("_ingest_timestamp"),
+        )
+    )
+
+    return aqicn.unionByName(open_meteo)

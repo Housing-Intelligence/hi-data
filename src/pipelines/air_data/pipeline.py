@@ -12,6 +12,7 @@ from transformation import (
     build_valid_condition,
     transform_aqicn,
     transform_open_meteo,
+    transform_air_quality_fact
 )
 
 AIR_QUALITY_PATH = "s3://housing-intelligence-data/raw_data/public_data/air_quality/"
@@ -129,7 +130,7 @@ def open_meteo_bronze():
     )
     return transform_open_meteo(df)
 
-# 6. Open-Meteo Quarantine
+# Open-Meteo Quarantine
 @dp.table(
     name="open_meteo_quarantine"
 )
@@ -156,4 +157,20 @@ def open_meteo_quarantine():
             "_quarantine_timestamp",
             F.current_timestamp()
         )
+    )
+
+# Silver table
+@dp.table()
+def air_quality_union():
+    aqicn = (
+        spark.readStream
+        .table("aqicn_bronze")
+    )
+    open_meteo = (
+        spark.readStream
+        .table("open_meteo_bronze")
+    )
+    return transform_air_quality_fact(
+        aqicn,
+        open_meteo,
     )
