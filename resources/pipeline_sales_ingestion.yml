@@ -1,0 +1,15 @@
+resources:
+  pipelines:
+    sales_ingestion_pipeline:
+      name: ${bundle.target}_sales_ingestion_pipeline
+        
+      catalog: housing_intelligence
+      schema: raw
+
+      serverless: true
+
+      root_path: ${workspace.file_path}/src
+
+      libraries:
+        - file:
+            path: ../src/pipelines/sales_data/ingestion.py
