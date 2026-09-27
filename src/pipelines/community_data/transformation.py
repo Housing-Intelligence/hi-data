@@ -4,9 +4,7 @@ from pyspark.sql import functions as F
 from pyspark.sql.types import (
     StructType,
     StructField,
-    StringType,
-    DoubleType,
-    IntegerType
+    StringType
 )
 
 GRID_SIZE = 0.01
@@ -98,40 +96,6 @@ COMMUNITY_TRANSLATION_SCHEMA = StructType([
     StructField("commercial_supporting_labels", StringType(), True),
     StructField("education_quality_labels", StringType(), True),
     StructField("transportation_convenience_label", StringType(), True),
-])
-
-AIR_QUALITY_RECORD_SCHEMA = StructType([
-    StructField("source", StringType(), True),
-
-    # AQICN
-    StructField("source_url", StringType(), True),
-    StructField("station_id", IntegerType(), True),
-    StructField("station_name", StringType(), True),
-    StructField("latitude", DoubleType(), True),
-    StructField("longitude", DoubleType(), True),
-    StructField("aqi", DoubleType(), True),
-    StructField("dominant_pollutant", StringType(), True),
-
-    # Common measurements
-    StructField("measurement_time", StringType(), True),
-    StructField("pm25", DoubleType(), True),
-    StructField("pm10", DoubleType(), True),
-    StructField("no2", DoubleType(), True),
-    StructField("o3", DoubleType(), True),
-    StructField("so2", DoubleType(), True),
-    StructField("co", DoubleType(), True),
-
-    # AQICN weather
-    StructField("temperature", DoubleType(), True),
-    StructField("humidity", DoubleType(), True),
-    StructField("pressure", DoubleType(), True),
-    StructField("dew_point", DoubleType(), True),
-    StructField("wind_speed", DoubleType(), True),
-    StructField("wind_gust", DoubleType(), True),
-
-    # Open-Meteo
-    StructField("model_grid_latitude", DoubleType(), True),
-    StructField("model_grid_longitude", DoubleType(), True),
 ])
 
 def prepare_community(spark, location:str) -> DataFrame:
@@ -285,7 +249,6 @@ def transform_community(
                 F.col(f"c.{col}")
                 for col in community.columns
                 if col not in [
-                    "community_name",
                     "description",
                     "property_service",
                     "pros",
@@ -295,11 +258,6 @@ def transform_community(
                     "commerce_tags"
                 ]
             ],
-
-            F.coalesce(
-                F.col("t.label"),
-                F.col("c.community_name")
-            ).alias("community_name"),
 
             F.coalesce(
                 F.col("t.community_introduction"),
