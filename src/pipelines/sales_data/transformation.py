@@ -73,7 +73,10 @@ def process_sales_data(df1: DataFrame, df2: DataFrame) -> DataFrame:
             "price_per_sqm_yuan",
             F.when(
                 F.col("area_sqm") > 0,
-                F.col("deal_price_wan") * 10000 / F.col("area_sqm")
+                F.round(
+                    F.col("deal_price_wan") * 10000 / F.col("area_sqm"),
+                    1
+                )
             )
         )
         .withColumn(
