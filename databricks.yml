@@ -26,6 +26,7 @@ targets:
     default: true
     workspace:
       host: https://dbc-25bc283e-e602.cloud.databricks.com/
+      root_path: /Workspace/Users/alviswhyi@gmail.com/.bundle/${bundle.name}/${bundle.target}
     variables:
       catalog: workspace
       schema: ${workspace.current_user.short_name}

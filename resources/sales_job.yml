@@ -1,0 +1,19 @@
+resources:
+  jobs:
+    sales_data_job:
+      name: ${bundle.target}_sales_data_job
+      tasks:
+
+        - task_key: sales_incremental_ingestion
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.sales_ingestion_pipeline.id}
+
+        - task_key: sales_silver
+          depends_on:
+            - task_key: sales_incremental_ingestion
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.sales_processing_pipeline.id}
+
+      trigger:
+        file_arrival:
+          url: s3://housing-intelligence-data/raw_data/sales_data/shell_data/new/
