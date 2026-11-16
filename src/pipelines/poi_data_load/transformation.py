@@ -5,6 +5,7 @@ Basic transformations for POI data
 from pyspark import pipelines as dp
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
+from pyspark.sql import Window
 
 from pyspark.sql.types import (
     StructType,
@@ -55,7 +56,7 @@ def prepare_poi(spark, loc: str) -> DataFrame:
 
 
 def transform_poi(df: DataFrame) -> DataFrame:
-    return (
+    temp_df = (
         df
         # Basic cleaning
         .withColumn(
@@ -136,3 +137,45 @@ def transform_poi(df: DataFrame) -> DataFrame:
             "_ingest_at",
         )
     )
+
+    dedup_columns = [
+        "poi_name",
+        "major_category",
+        "middle_category",
+        "minor_category",
+        "province",
+        "city",
+        "district",
+        "longitude",
+        "latitude",
+        "geo_grid_id",
+        "phone",
+        "address",
+    ]
+
+    df = temp_df.withColumn(
+        "_non_null_count",
+        sum(
+            F.when(F.col(c).isNotNull(), 1).otherwise(0)
+            for c in dedup_columns
+        )
+    )
+
+    window_spec = Window.partitionBy("source_poi_id").orderBy(
+        F.col("_non_null_count").desc(),
+        F.col("_ingest_at").desc(),
+        F.col("poi_name").asc(),
+    )
+
+    df = df.withColumn(
+        "row_number",
+        F.row_number().over(window_spec)
+    ).filter(
+        F.col("row_number") == 1
+    ).drop(
+        "row_number",
+        "_non_null_count"
+    )
+
+    return df
+
