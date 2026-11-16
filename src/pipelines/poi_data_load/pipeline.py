@@ -15,7 +15,7 @@ def poi_raw():
 @dp.materialized_view
 def dim_poi():
 
-    df = spark.readStream.table(
+    df = spark.read.table(
         "housing_intelligence.processed.poi_raw"
     )
 
