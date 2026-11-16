@@ -12,7 +12,7 @@ def poi_raw():
     return prepare_poi(spark, POI_PATH)
 
 
-@dp.table
+@dp.materialized_view
 def dim_poi():
 
     df = spark.readStream.table(
